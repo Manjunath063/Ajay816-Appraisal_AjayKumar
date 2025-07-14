@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: ajay816-postgres
+    restart: always
+    ports:
+      - "5480:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: new_employee_db
+    volumes:
+      - pgdata816:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ajay816-network
+
+  backend:
+    build: ./backend
+    container_name: ajay816-backend
+    ports:
+      - "3080:3080"
+    depends_on:
+      - postgres
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin123
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: new_employee_db
+    networks:
+      - ajay816-network
+
+  frontend:
+    build: ./frontend
+    container_name: ajay816-frontend
+    ports:
+      - "8160:80"
+    depends_on:
+      - backend
+    networks:
+      - ajay816-network
+
+  hr:
+    build: ./Hr_page
+    container_name: ajay816-hr
+    ports:
+      - "8161:80"
+    depends_on:
+      - backend
+    networks:
+      - ajay816-network
+
+volumes:
+  pgdata816:
+
+networks:
+  ajay816-network:
+
